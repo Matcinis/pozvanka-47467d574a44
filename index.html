@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a0e21">
+<meta name="robots" content="noindex,nofollow">
+<meta property="og:title" content="Krátky dotazník (dôverné)">
+<meta property="og:description" content="Trvá 30 sekúnd. Nebolí to. Len pre tvoje oči.">
+<meta property="og:type" content="website">
+<title>Krátky dotazník (dôverné)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,500&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#1a0e21;
+    --plum:#2a1534;
+    --plum-2:#3a1f48;
+    --rose:#ff6b8a;
+    --rose-deep:#e0456b;
+    --candle:#ffcf8b;
+    --blush:#ffe6ea;
+    --mauve:#d7bdd2;
+    --line:rgba(255,230,234,.14);
+    --serif:'Fraunces', Georgia, 'Times New Roman', serif;
+    --sans:'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --hand:'Caveat', 'Segoe Script', cursive;
+  }
+  *{box-sizing:border-box;margin:0}
+  html,body{height:100%}
+  body{
+    background:var(--night);
+    color:var(--blush);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.5;
+    overflow-x:hidden;
+    -webkit-tap-highlight-color:transparent;
+  }
+  /* candle glow behind everything */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(60vmax 60vmax at 85% -10%, rgba(255,107,138,.22), transparent 60%),
+      radial-gradient(50vmax 50vmax at -10% 110%, rgba(255,207,139,.14), transparent 60%);
+  }
+  #hearts{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .float{
+    position:absolute;bottom:-40px;color:var(--rose);opacity:0;
+    animation:rise linear forwards;
+  }
+  @keyframes rise{
+    0%{transform:translateY(0) rotate(0);opacity:0}
+    10%{opacity:.35}
+    100%{transform:translateY(-110vh) rotate(25deg);opacity:0}
+  }
+
+  main{
+    position:relative;z-index:1;
+    min-height:100dvh;
+    max-width:460px;margin:0 auto;
+    padding:max(20px, env(safe-area-inset-top)) 22px max(24px, env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;
+  }
+  .top{
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mauve);
+    padding-block:6px 0;min-height:34px;
+  }
+  .dots{display:flex;gap:6px}
+  .dots i{width:6px;height:6px;border-radius:50%;background:var(--line);transition:.4s}
+  .dots i.on{background:var(--rose);box-shadow:0 0 10px var(--rose)}
+
+  .stage{flex:1;display:flex;flex-direction:column;justify-content:center;padding-block:18px}
+  .step{display:none;animation:in .6s cubic-bezier(.2,.8,.2,1) both}
+  .step.active{display:block}
+  @keyframes in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+  .eyebrow{font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--candle);margin-bottom:14px}
+  h1,h2{font-family:var(--serif);font-weight:500;line-height:1.08;letter-spacing:-.01em;font-variation-settings:"opsz" 144}
+  h1{font-size:clamp(2.2rem,9.5vw,3rem)}
+  h2{font-size:clamp(1.8rem,7.5vw,2.3rem)}
+  em{font-style:italic;color:var(--rose)}
+  .lead{margin-top:16px;color:var(--mauve);font-size:1.02rem;max-width:34ch}
+  .hint{margin-top:14px;font-size:.84rem;color:var(--mauve);min-height:1.4em}
+
+  .btn{
+    -webkit-appearance:none;appearance:none;border:0;cursor:pointer;
+    font:600 1rem var(--sans);color:var(--night);
+    background:linear-gradient(180deg,#ffd9a0,var(--candle));
+    padding:16px 26px;border-radius:999px;
+    box-shadow:0 10px 30px -10px rgba(255,207,139,.55), inset 0 -2px 0 rgba(0,0,0,.08);
+    transition:transform .2s, box-shadow .2s, opacity .3s;
+  }
+  .btn:hover{transform:translateY(-2px)}
+  .btn:active{transform:scale(.97)}
+  .btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+  .btn.rose{background:linear-gradient(180deg,var(--rose),var(--rose-deep));color:#fff;box-shadow:0 12px 34px -10px rgba(255,107,138,.7)}
+  .btn.ghost{background:transparent;color:var(--blush);border:1px solid var(--line);box-shadow:none}
+  .btn:focus-visible,.opt:focus-visible,.chip:focus-visible,input:focus-visible{outline:2px solid var(--candle);outline-offset:3px}
+  .actions{margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+
+  /* single choice */
+  .opts{margin-top:26px;display:grid;gap:12px}
+  .opt{
+    -webkit-appearance:none;appearance:none;text-align:left;cursor:pointer;
+    font:500 1.02rem var(--sans);color:var(--blush);
+    background:rgba(255,230,234,.05);border:1px solid var(--line);
+    padding:17px 20px;border-radius:18px;transition:.25s;
+  }
+  .opt:hover{border-color:var(--rose);background:rgba(255,107,138,.1);transform:translateX(4px)}
+  .opt:active{transform:scale(.98)}
+
+  /* slider */
+  .meter{margin-top:30px}
+  .meter-val{font-family:var(--serif);font-size:3.6rem;line-height:1;font-weight:500;color:var(--candle)}
+  .meter-val small{font-size:1.4rem;color:var(--mauve)}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:36px;background:transparent;margin-top:12px;touch-action:pan-y;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:6px;background:linear-gradient(90deg,var(--rose) var(--p,50%),var(--line) var(--p,50%))}
+  input[type=range]::-moz-range-track{height:6px;border-radius:6px;background:var(--line)}
+  input[type=range]::-moz-range-progress{height:6px;border-radius:6px;background:var(--rose)}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:30px;height:30px;border-radius:50%;margin-top:-12px;border:0;
+    background:var(--candle);box-shadow:0 0 0 6px rgba(255,207,139,.2), 0 0 18px rgba(255,207,139,.6);
+  }
+  input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;border:0;background:var(--candle);box-shadow:0 0 0 6px rgba(255,207,139,.2)}
+  .snap input[type=range]::-webkit-slider-thumb{animation:pop .5s}
+  @keyframes pop{50%{transform:scale(1.35)}}
+
+  /* chips */
+  .chips{margin-top:24px;display:flex;flex-wrap:wrap;gap:10px}
+  .chip{
+    -webkit-appearance:none;appearance:none;cursor:pointer;
+    font:500 .98rem var(--sans);color:var(--blush);
+    background:rgba(255,230,234,.05);border:1px solid var(--line);
+    padding:12px 16px;border-radius:999px;transition:.25s;
+  }
+  .chip[aria-pressed=true]{background:var(--rose);border-color:var(--rose);color:#fff;transform:scale(1.04);box-shadow:0 8px 24px -8px rgba(255,107,138,.7)}
+
+  /* hold heart */
+  .hold-wrap{margin-top:28px;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .hold{
+    position:relative;width:148px;height:148px;border:0;background:none;cursor:pointer;
+    touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+  }
+  .hold svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+  .hold .bg{fill:none;stroke:var(--line);stroke-width:5}
+  .hold .fg{fill:none;stroke:var(--rose);stroke-width:5;stroke-linecap:round;stroke-dasharray:408;stroke-dashoffset:408}
+  .hold .heart{
+    position:absolute;inset:0;display:grid;place-items:center;font-size:3.2rem;color:var(--rose);
+    transition:transform .2s;filter:drop-shadow(0 0 14px rgba(255,107,138,.6));
+  }
+  .hold.holding .heart{animation:beat .5s infinite}
+  @keyframes beat{50%{transform:scale(1.25)}}
+  .hold.done .heart{transform:scale(1.2)}
+
+  /* loading */
+  .bar{margin-top:30px;height:6px;border-radius:6px;background:var(--line);overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--rose),var(--candle));border-radius:6px}
+  .loadmsg{margin-top:18px;color:var(--mauve);min-height:3em;font-size:.98rem}
+
+  /* reveal */
+  .confess{font-family:var(--hand);font-size:1.7rem;color:var(--candle);margin-bottom:6px;font-weight:500}
+  .when{
+    margin-top:24px;padding:18px 20px;border-radius:20px;
+    background:linear-gradient(135deg,rgba(255,107,138,.14),rgba(255,207,139,.1));
+    border:1px solid var(--line);display:flex;align-items:center;gap:18px;
+  }
+  .when .day{font-family:var(--serif);font-size:2.6rem;line-height:.9;color:var(--candle);font-weight:500;text-align:center;min-width:64px}
+  .when .day small{display:block;font:600 .66rem var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--mauve);margin-top:6px}
+  .when .txt{font-size:1rem}
+  .when .txt b{display:block;font-family:var(--serif);font-weight:500;font-size:1.25rem}
+  .when .txt span{color:var(--mauve);font-size:.9rem}
+
+  #no{transition:transform .35s cubic-bezier(.3,1.4,.5,1), left .35s cubic-bezier(.3,1.4,.5,1), top .35s cubic-bezier(.3,1.4,.5,1), opacity .4s}
+  #no.fly{position:fixed;z-index:20}
+  #yes{transition:transform .35s}
+
+  .final .sig{font-family:var(--hand);font-size:2rem;color:var(--candle);margin-top:22px}
+  .card{margin-top:22px;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:rgba(255,230,234,.04)}
+  .row{display:flex;gap:14px;padding:14px 18px;align-items:baseline}
+  .row + .row{border-top:1px solid var(--line)}
+  .row dt{flex:0 0 78px;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--candle)}
+  .row dd{margin:0;color:var(--blush)}
+  .row dd span{color:var(--mauve)}
+
+  .toast{
+    position:fixed;left:50%;bottom:max(22px, env(safe-area-inset-bottom));transform:translate(-50%,40px);
+    background:var(--plum-2);border:1px solid var(--line);color:var(--blush);
+    padding:12px 18px;border-radius:14px;font-size:.92rem;opacity:0;pointer-events:none;
+    transition:.4s;z-index:50;max-width:calc(100vw - 40px);text-align:center;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  #confetti{position:fixed;inset:0;z-index:30;pointer-events:none}
+
+  @media (prefers-reduced-motion:reduce){
+    .float{display:none}
+    .step{animation:none}
+    .hold.holding .heart{animation:none}
+  }
+</style>
+</head>
+<body>
+<div id="hearts" aria-hidden="true"></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<main>
+  <div class="top">
+    <span>Dôverné · iba pre teba</span>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- 0 · intro -->
+    <section class="step" data-step="0">
+      <p class="eyebrow">Interný prieskum č. 2310</p>
+      <h1>Ahoj<span id="nm"></span>. Čaká ťa <em>krátky dotazník</em>.</h1>
+      <p class="lead">Trvá asi 30 sekúnd, nebolí to a tvoje odpovede nikomu nepredáme. Okrem jedného človeka.</p>
+      <div class="actions"><button class="btn" data-next>Dobre, poďme na to</button></div>
+    </section>
+
+    <!-- 1 · identity -->
+    <section class="step" data-step="1">
+      <p class="eyebrow">Otázka 1 z 4 · Overenie totožnosti</p>
+      <h2>Si to naozaj <em>ty</em>?</h2>
+      <div class="opts">
+        <button class="opt" data-next data-toast="Perfektne. Pokračujeme.">Áno, som to ja</button>
+        <button class="opt" data-next data-toast="Taká krása sa nedá sfalšovať. Pokračujeme.">Nie, som jej ešte krajšia dvojča</button>
+        <button class="opt" data-next data-toast="Aj tak ťa pustím ďalej. Máš výhodu.">Radšej neodpoviem</button>
+      </div>
+    </section>
+
+    <!-- 2 · slider -->
+    <section class="step" data-step="2">
+      <p class="eyebrow">Otázka 2 z 4 · Sebahodnotenie</p>
+      <h2>Ako veľmi si dnes <em>úžasná</em>?</h2>
+      <div class="meter" id="meter">
+        <div class="meter-val"><span id="mv">50</span><small> %</small></div>
+        <input type="range" id="rng" min="0" max="100" value="50" aria-label="Úžasnosť v percentách">
+        <p class="hint" id="rngHint">Posuň jazdec podľa pocitu.</p>
+      </div>
+      <div class="actions"><button class="btn" id="rngNext" data-next disabled>Pokračovať</button></div>
+    </section>
+
+    <!-- 3 · chips -->
+    <section class="step" data-step="3">
+      <p class="eyebrow">Otázka 3 z 4 · Preferencie</p>
+      <h2>Čo ťa dokáže spoľahlivo <em>potešiť</em>?</h2>
+      <div class="chips" id="chips">
+        <button class="chip" aria-pressed="false">🍝 Dobré jedlo</button>
+        <button class="chip" aria-pressed="false">🍷 Pohárik niečoho dobrého</button>
+        <button class="chip" aria-pressed="false">🕯️ Svetlo sviečok</button>
+        <button class="chip" aria-pressed="false">😂 Môj hlúpy humor</button>
+        <button class="chip" aria-pressed="false">🫶 Objatie bez dôvodu</button>
+        <button class="chip" aria-pressed="false">🍰 Dezert (povinný)</button>
+      </div>
+      <p class="hint" id="chipHint">Vyber aspoň jedno. Alebo všetko, nikto ťa nesúdi.</p>
+      <div class="actions"><button class="btn" id="chipNext" data-next disabled>Pokračovať</button></div>
+    </section>
+
+    <!-- 4 · hold -->
+    <section class="step" data-step="4">
+      <p class="eyebrow">Otázka 4 z 4 · Bezpečnostná kontrola</p>
+      <h2>Dokáž, že nie si <em>robot</em>.</h2>
+      <p class="lead">Pridrž prst na srdci, kým sa neoverí tlkot.</p>
+      <div class="hold-wrap">
+        <button class="hold" id="hold" aria-label="Pridrž pre overenie">
+          <svg viewBox="0 0 148 148"><circle class="bg" cx="74" cy="74" r="65"/><circle class="fg" id="ring" cx="74" cy="74" r="65"/></svg>
+          <span class="heart">❤</span>
+        </button>
+        <p class="hint" id="holdHint">Drž. Ešte chvíľu.</p>
+      </div>
+    </section>
+
+    <!-- 5 · loading -->
+    <section class="step" data-step="5">
+      <p class="eyebrow">Spracovanie</p>
+      <h2>Vyhodnocujem <em>odpovede</em>…</h2>
+      <div class="bar"><i id="barI"></i></div>
+      <p class="loadmsg" id="loadMsg">Počítam tvoje odpovede.</p>
+    </section>
+
+    <!-- 6 · reveal -->
+    <section class="step" data-step="6">
+      <p class="confess">Dobre, priznávam sa.</p>
+      <h2>Žiadny dotazník nebol. Len som ti chcel <em>niečo povedať</em>.</h2>
+      <p class="lead">A tak som sa ťa radšej opýtam poriadne:</p>
+      <h1 style="margin-top:18px">Pôjdeš so mnou<br>na <em>rande</em>?</h1>
+      <div class="when">
+        <div class="day">23<small>okt</small></div>
+        <div class="txt"><b>Piatok, 19:00</b><span>Rok 2026. Zvyšok je prekvapenie.</span></div>
+      </div>
+      <div class="actions" id="ans">
+        <button class="btn rose" id="yes">Áno 💘</button>
+        <button class="btn ghost" id="no">Nie</button>
+      </div>
+      <p class="hint" id="noHint"></p>
+    </section>
+
+    <!-- 7 · yes -->
+    <section class="step final" data-step="7">
+      <p class="confess">Vedel som, že budem mať šťastie.</p>
+      <h2>Je to <em>rande</em>. Oficiálne.</h2>
+      <dl class="card">
+        <div class="row"><dt>Kedy</dt><dd>Piatok 23. októbra 2026, <span>19:00</span></dd></div>
+        <div class="row"><dt>Kde</dt><dd id="place">Prekvapenie. <span>Ja riadim, ty sa len objavíš.</span></dd></div>
+        <div class="row"><dt>Dresscode</dt><dd>Ty. Ako vždy. <span>Pohodlné topánky sú bonus.</span></dd></div>
+        <div class="row"><dt>Pre istotu</dt><dd>Prines dobrú náladu. <span>Dezert zabezpečím ja.</span></dd></div>
+      </dl>
+      <div class="actions">
+        <button class="btn" id="cal">Pridať do kalendára</button>
+        <button class="btn ghost" id="tell">Dať mi vedieť</button>
+      </div>
+      <p class="sig">Teším sa na teba. — Martin</p>
+    </section>
+
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ====== Nastavenia ====== */
+const CONFIG = {
+  herName: "",          // napr. "Lucia" (nechaj prázdne = bez mena)
+  phone: "",            // tvoje číslo pre SMS, napr. "+421900123456" (prázdne = zdieľanie/kopírovanie)
+  place: "",            // ak chceš prezradiť miesto, napr. "Reštaurácia XY, Žilina"
+  from: "Martin"
+};
+
+/* ====== Pomocné ====== */
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const steps = $$('.step');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let cur = 0;
+
+if (CONFIG.herName) $('#nm').textContent = ', ' + CONFIG.herName;
+if (CONFIG.place) $('#place').innerHTML = CONFIG.place + ' <span>Čaká ťa pekný večer.</span>';
+
+// dots (steps 1–4 only)
+const dots = $('#dots');
+for (let i = 0; i < 4; i++) dots.appendChild(document.createElement('i'));
+function paintDots(n){ $$('i', dots).forEach((d,i)=>d.classList.toggle('on', i < n)); }
+
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+function go(n){
+  cur = n;
+  steps.forEach(s => s.classList.toggle('active', +s.dataset.step === n));
+  paintDots(n >= 5 ? 4 : Math.max(0, n - 0));
+  if (n === 5) runLoading();
+  window.scrollTo({top:0});
+}
+
+$$('[data-next]').forEach(b => b.addEventListener('click', () => {
+  if (b.dataset.toast) toast(b.dataset.toast);
+  go(cur + 1);
+}));
+
+/* ====== Plávajúce srdiečka ====== */
+if (!reduce){
+  const box = $('#hearts');
+  setInterval(() => {
+    const h = document.createElement('span');
+    h.className = 'float';
+    h.textContent = '❤';
+    h.style.left = Math.random()*100 + 'vw';
+    h.style.fontSize = (10 + Math.random()*18) + 'px';
+    const d = 9 + Math.random()*8;
+    h.style.animationDuration = d + 's';
+    box.appendChild(h);
+    setTimeout(()=>h.remove(), d*1000);
+  }, 900);
+}
+
+/* ====== Q2: slider ====== */
+const rng = $('#rng'), mv = $('#mv'), rh = $('#rngHint'), meter = $('#meter');
+const paint = () => { rng.style.setProperty('--p', rng.value + '%'); mv.textContent = rng.value; };
+paint();
+const lines = [
+  [20, 'Hmm. Tomu neverím ani slovo.'],
+  [60, 'Skromnosť je pekná vlastnosť, ale toto je prehnané.'],
+  [99, 'Skoro. Ešte kúsok.'],
+];
+rng.addEventListener('input', () => {
+  paint();
+  const v = +rng.value;
+  const l = lines.find(x => v < x[0]);
+  rh.textContent = l ? l[1] : 'Správne.';
+  $('#rngNext').disabled = false;
+});
+function snap(){
+  if (+rng.value >= 100) return;
+  const start = +rng.value, t0 = performance.now();
+  (function step(t){
+    const k = Math.min(1, (t - t0)/450);
+    rng.value = Math.round(start + (100 - start) * (1 - Math.pow(1-k,3)));
+    paint();
+    if (k < 1) requestAnimationFrame(step);
+    else { rh.textContent = 'Hodnoty pod 100 % systém nepodporuje. Opravené.'; meter.classList.add('snap'); setTimeout(()=>meter.classList.remove('snap'),600); }
+  })(t0);
+}
+rng.addEventListener('change', snap);
+rng.addEventListener('pointerup', snap);
+
+/* ====== Q3: chips ====== */
+const chips = $$('.chip');
+chips.forEach(c => c.addEventListener('click', () => {
+  c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true');
+  const n = chips.filter(x => x.getAttribute('aria-pressed') === 'true').length;
+  $('#chipNext').disabled = n === 0;
+  $('#chipHint').textContent =
+    n === 0 ? 'Vyber aspoň jedno. Alebo všetko, nikto ťa nesúdi.' :
+    n === chips.length ? 'Všetko? Presne to som čakal.' :
+    n === 1 ? 'Skromný začiatok. Pokojne pridaj ďalšie.' : 'Zapísané. Tieto informácie sa mi zídu.';
+}));
+
+/* ====== Q4: hold ====== */
+const hold = $('#hold'), ring = $('#ring'), hh = $('#holdHint');
+const HOLD_MS = 1600, C = 408;
+let hStart = 0, hRaf = 0, hDone = false;
+function hTick(t){
+  const k = Math.min(1, (t - hStart)/HOLD_MS);
+  ring.style.strokeDashoffset = C * (1 - k);
+  if (k >= 1){ hDone = true; hold.classList.remove('holding'); hold.classList.add('done'); hh.textContent = 'Overené. Tlkot potvrdený, si človek (a trochu moja).'; setTimeout(()=>go(5), 1100); return; }
+  hRaf = requestAnimationFrame(hTick);
+}
+function hDown(e){ if (hDone) return; e.preventDefault(); hold.classList.add('holding'); hh.textContent = 'Ešte… ešte…'; hStart = performance.now(); hRaf = requestAnimationFrame(hTick); }
+function hUp(){ if (hDone) return; cancelAnimationFrame(hRaf); hold.classList.remove('holding'); ring.style.strokeDashoffset = C; hh.textContent = 'Pridrž dlhšie. Srdce potrebuje čas.'; }
+hold.addEventListener('pointerdown', hDown);
+['pointerup','pointerleave','pointercancel'].forEach(ev => hold.addEventListener(ev, hUp));
+hold.addEventListener('contextmenu', e => e.preventDefault());
+hold.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) hDown(e); });
+hold.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') hUp(); });
+
+/* ====== Loading ====== */
+function runLoading(){
+  const msgs = [
+    'Počítam tvoje odpovede.',
+    'Kontrolujem, či je piatok voľný.',
+    'Žehlím košeľu.',
+    'Nacvičujem prirodzený výraz tváre.',
+    'Takmer hotovo. Len sa mi trochu trasú ruky.'
+  ];
+  const bar = $('#barI'), msg = $('#loadMsg');
+  const total = 5200, t0 = performance.now();
+  let last = -1;
+  (function f(t){
+    const k = Math.min(1, (t - t0)/total);
+    bar.style.width = (k*100) + '%';
+    const i = Math.min(msgs.length - 1, Math.floor(k * msgs.length));
+    if (i !== last){ last = i; msg.textContent = msgs[i]; }
+    if (k < 1) requestAnimationFrame(f); else setTimeout(()=>go(6), 500);
+  })(t0);
+}
+
+/* ====== Reveal: utekajúce "Nie" ====== */
+const no = $('#no'), yes = $('#yes'), nh = $('#noHint');
+const noText = ['Nie','Ehm… nie?','Si si istá?','Skús ešte raz','Ani náhodou','Hej, vážne?','Dobre, posledný pokus'];
+let dodges = 0;
+function dodge(e){
+  if (dodges >= 7) return;
+  e && e.preventDefault();
+  dodges++;
+  if (dodges >= 7){
+    no.style.opacity = 0; no.style.pointerEvents = 'none';
+    nh.textContent = 'Možnosť „Nie“ bola vyradená z prevádzky pre technickú poruchu.';
+    yes.style.transform = 'scale(1.18)';
+    return;
+  }
+  no.textContent = noText[dodges];
+  no.classList.add('fly');
+  const w = no.offsetWidth, h = no.offsetHeight, m = 12;
+  const yr = yes.getBoundingClientRect();
+  let x, y, tries = 0;
+  do {
+    x = m + Math.random()*(innerWidth - w - 2*m);
+    y = m + Math.random()*(innerHeight - h - 2*m);
+    tries++;
+  } while (tries < 30 && x < yr.right + 12 && x + w > yr.left - 12 && y < yr.bottom + 12 && y + h > yr.top - 12);
+  no.style.left = x + 'px'; no.style.top = y + 'px';
+  yes.style.transform = 'scale(' + (1 + dodges*0.05) + ')';
+  nh.textContent = dodges > 2 ? 'Tlačidlo „Nie“ sa dnes cíti nesvoje.' : '';
+}
+no.addEventListener('pointerdown', dodge);
+no.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') dodge(e); });
+no.addEventListener('click', dodge);
+
+yes.addEventListener('click', () => { go(7); burst(); });
+
+/* ====== Konfety ====== */
+const cv = $('#confetti'), cx = cv.getContext('2d');
+function sizeCv(){ cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio; }
+sizeCv(); addEventListener('resize', sizeCv);
+function burst(){
+  if (reduce) return;
+  const cols = ['#ff6b8a','#ffcf8b','#ffe6ea','#e0456b','#ffffff'];
+  const ps = Array.from({length:150}, () => ({
+    x: cv.width/2, y: cv.height*0.6,
+    vx: (Math.random()-0.5) * 16 * devicePixelRatio,
+    vy: (-Math.random()*17 - 6) * devicePixelRatio,
+    s: (5 + Math.random()*7) * devicePixelRatio,
+    r: Math.random()*6, vr: (Math.random()-0.5)*0.4,
+    c: cols[Math.floor(Math.random()*cols.length)],
+    heart: Math.random() < 0.35
+  }));
+  let life = 0;
+  (function f(){
+    cx.clearRect(0,0,cv.width,cv.height);
+    ps.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.vy += 0.35*devicePixelRatio; p.vx *= 0.992; p.r += p.vr;
+      cx.save(); cx.translate(p.x,p.y); cx.rotate(p.r); cx.fillStyle = p.c;
+      if (p.heart){ cx.font = (p.s*2.2)+'px serif'; cx.fillText('❤', -p.s, p.s); }
+      else cx.fillRect(-p.s/2, -p.s/2, p.s, p.s*0.6);
+      cx.restore();
+    });
+    if (++life < 200) requestAnimationFrame(f); else cx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+
+/* ====== Kalendár (.ics) a odpoveď ====== */
+$('#cal').addEventListener('click', () => {
+  const loc = CONFIG.place || 'Prekvapenie';
+  const ics = [
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Rande//SK','CALSCALE:GREGORIAN','BEGIN:VEVENT',
+    'UID:rande-20261023@pozvanka',
+    'DTSTAMP:20261020T120000Z',
+    'DTSTART:20261023T190000','DTEND:20261023T220000',
+    'SUMMARY:Rande s ' + CONFIG.from + ' 💘',
+    'LOCATION:' + loc,
+    'DESCRIPTION:Dresscode: ty. Dezert zabezpečí ' + CONFIG.from + '.',
+    'BEGIN:VALARM','TRIGGER:-PT2H','ACTION:DISPLAY','DESCRIPTION:Dnes máme rande','END:VALARM',
+    'END:VEVENT','END:VCALENDAR'
+  ].join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([ics], {type:'text/calendar;charset=utf-8'}));
+  a.download = 'rande.ics';
+  document.body.appendChild(a); a.click(); a.remove();
+  toast('Pridané. Už sa nemôžeš vyhovoriť.');
+});
+
+$('#tell').addEventListener('click', async () => {
+  const text = 'Áno! 💘 Piatok 23. 10. o 19:00, počítaj so mnou. Už sa teším.';
+  if (CONFIG.phone){ location.href = 'sms:' + CONFIG.phone + '?&body=' + encodeURIComponent(text); return; }
+  try {
+    if (navigator.share){ await navigator.share({text}); return; }
+    await navigator.clipboard.writeText(text);
+    toast('Správa skopírovaná. Pošli mi ju.');
+  } catch(e){ toast('Napíš mi jednoducho „áno“. Stačí.'); }
+});
+
+go(0);
+</script>
+</body>
+</html>
