@@ -314,8 +314,9 @@
       </dl>
       <div class="actions">
         <button class="btn" id="cal">Pridať do kalendára</button>
-        <button class="btn ghost" id="tell">Dať mi vedieť</button>
+        
       </div>
+      <p class="lead" style="margin-top:22px">Odpovedať netreba nikam klikať. Stačí mi to povedať slovom, nahlas, najlepšie s úsmevom.</p>
       <p class="sig">Teším sa na teba. — Martin</p>
     </section>
 
@@ -327,7 +328,7 @@
 <script>
 /* ====== Nastavenia ====== */
 const CONFIG = {
-  herName: "",          // napr. "Lucia" (nechaj prázdne = bez mena)
+  herName: "Martinka", // jej meno
   phone: "",            // tvoje číslo pre SMS, napr. "+421900123456" (prázdne = zdieľanie/kopírovanie)
   place: "",            // ak chceš prezradiť miesto, napr. "Reštaurácia XY, Žilina"
   from: "Martin"
@@ -548,15 +549,6 @@ $('#cal').addEventListener('click', () => {
   toast('Pridané. Už sa nemôžeš vyhovoriť.');
 });
 
-$('#tell').addEventListener('click', async () => {
-  const text = 'Áno! 💘 Piatok 23. 10. o 19:00, počítaj so mnou. Už sa teším.';
-  if (CONFIG.phone){ location.href = 'sms:' + CONFIG.phone + '?&body=' + encodeURIComponent(text); return; }
-  try {
-    if (navigator.share){ await navigator.share({text}); return; }
-    await navigator.clipboard.writeText(text);
-    toast('Správa skopírovaná. Pošli mi ju.');
-  } catch(e){ toast('Napíš mi jednoducho „áno“. Stačí.'); }
-});
 
 go(0);
 </script>
